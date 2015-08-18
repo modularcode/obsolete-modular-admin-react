@@ -1,0 +1,134 @@
+.sidebar {
+	background-color: @color-primary-dark;
+	width: @sidebar-width;
+	position: absolute;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	transition: left 0.3s ease;
+
+	.accelerate();
+
+
+	@media @xs {
+		left: -@sidebar-width;
+	}
+
+	@media @sm {
+		left: -@sidebar-width;
+	}
+
+
+
+	.brand {
+		color: @color-primary;
+		text-align: center;
+		line-height: @header-height;
+		font-size: 18px;
+	}
+
+
+
+	.nav {
+
+		// Common styles
+		li {
+			a:focus,
+			.open & a:focus {
+				background-color: inherit;
+			}
+		}
+
+		ul {
+			padding: 0;
+		}
+
+		// All links which are not active
+		// have subdued color
+		li a {
+			color: fade(@color-text-inverse, 50%);
+		}
+
+		// All links which are not active
+		// On hover bg become darker
+		// Their color become lighter
+		li a:hover,
+		li.open > a,
+		li.open a:hover {
+			color: @color-text-inverse;
+			background-color: @color-primary-darker;
+		}
+
+
+		// First level items
+		&> li {
+
+			// First level items links
+			& > a {
+				padding-top: 15px;
+				padding-bottom: 15px;
+				padding-left: 20px;
+			}
+
+			// First level active links have primary background
+			&.active > a,
+			&.active > a:hover {
+				background-color: @color-primary !important;
+				color: @color-text-inverse !important;
+			}
+
+			// First level active links have bit darker background
+			&.open > a {
+				background-color: darken(@color-primary-dark, 3%);
+			}
+
+			// Open items links
+			&.open > a {
+				i.arrow {
+					transform: rotate(90deg);
+				}
+			}
+
+			// First level item links arrow 
+			& > a {
+				i {
+					margin-right: 5px;
+
+					&.arrow {
+						float: right;
+						font-size: 20px;
+						line-height: initial;
+						transition: all 0.3s ease;
+
+						&:before {
+							content: "\f105" !important;
+						}
+					}
+				}
+			}
+
+		}
+
+		// Second level items
+		& > li > ul > li {
+
+			// Second level and deeper items links
+			// Have bit darker background and more padding 
+			// from left side
+			a {
+				padding-top: 10px;
+				padding-bottom: 10px;
+				padding-left: 50px;
+				background-color: darken(@color-primary-dark, 3%);
+			}
+
+			// Second level active items links
+			// Have brighter color
+			&.active a {
+				color: @color-text-inverse;
+			}
+		}
+	}
+
+
+}

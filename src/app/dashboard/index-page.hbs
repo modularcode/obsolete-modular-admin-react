@@ -1,0 +1,40 @@
+{{#extend "app/app-layout"}}
+	{{#content "body"}}
+		<div id="test" class="test">{{{markup}}}</div>
+		{{!-- Analytics --}}
+		<section class="section">
+			<div class="title-block">
+				<h3 class="title">
+					Hi User
+				</h3>
+				<p class="subtitle">
+					Check out you analytics
+				</p>	
+			</div>
+
+			<div class="row sameheight">
+				<div class="col-sm-5 col-md-6 col-lg-5">
+					{{> app/dashboard/stats/stats}}
+				</div>
+				<div class="col-sm-7 col-md-6 col-lg-7">
+					{{> app/dashboard/visits/visits}}
+				</div>
+			</div>
+		</section>
+
+		{{!-- Projects --}}
+		<section class="section dashboard-projects">
+			<div class="title-block">
+				<h3 class="title">
+					Projects
+				</h3>
+				<p class="subtitle">
+					This table will shows you your projects' progress.
+				</p>	
+			</div>
+
+			{{> app/dashboard/projects/projects}}
+		</section>
+
+	{{/content}}
+{{/extend}}
