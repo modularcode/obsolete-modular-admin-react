@@ -1,3 +1,8 @@
 # Modularity: Free Admin Dashboard Theme
-html version
+ReactJS Version
 
+@ToDo
+
+- Isomorphyc application
+- Flux
+- Browserify for dependency management
