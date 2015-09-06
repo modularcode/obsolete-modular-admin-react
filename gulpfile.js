@@ -1,31 +1,73 @@
 var glob = require('glob');
 var path = require('path');
 
-var gulp 	= require('gulp');
+var gulp = require('gulp');
+var express = require('express');
+var exphbs  = require('express-handlebars');
+var app = express();
+var router = express.Router();
 var plugins = require('gulp-load-plugins')();
+var registrar = require('handlebars-registrar');
+var handlebars = require('handlebars');
+
+var config = require('./config');
+
+var paths = {
+	app: 	require('./paths-app'),
+	vendor: require('./paths-vendor')
+};
+
+registrar(handlebars, {
+    helpers: paths.app.helpers.src,
+    partials: paths.app.templates.src
+});
 
 /********************************************
 *			Configs And Paths
 *********************************************/
 
-var config = require('./config');
+
 
 // Build Jsx
 
 var	React = require('react');
 require('node-jsx').install({extension:'.jsx'});
 
+//router
+hbs = exphbs.create({
+    extname: '.hbs',
+    helpers: handlebars.helpers,
+    partialsDir: __dirname + "/src/"
+});
+app.engine('hbs', hbs.engine);
+app.set('view engine', 'hbs');
+app.set('views', path.join(__dirname, "/src/app/"));
+app.use(router);  
+
+hbs.getPartials().then(function (partials) {
+    console.log('tested', partials);
+    // => { 'foo/bar': [Function],
+    // =>    title: [Function] }
+});
+router.all('/:param1', function (req, res, next) {
+	console.log(paths.app.helpers.src, path.parse(req.params.param1).name, "testing!");
+	var page_name = ((path.parse(req.params.param1).name == "index")?"dashboard":path.parse(req.params.param1).name);
+	App = React.createFactory(require(config.srcDir + "/app/" + page_name + "/app.jsx"));
+	markup = React.renderToString(App());
+	console.log(markup,'testtestestset');
+//    res.send('this is a sample!');
+	res.render(page_name + '/' + ((path.parse(req.params.param1).name == "dashboard")?"index":path.parse(req.params.param1).name) + '-page', {
+		markup:markup
+	});
+});
+
+//router
+
 router = "index";
-App = React.createFactory(require(config.srcDir + "/app/" + ((router == "index")?"dashboard":router) + "/app.jsx"));
-console.log("./" + config.srcDir + "/app/" + ((router == "index")?"dashboard":router) + "/app.jsx",'App');
-markup = React.renderToString(App());
-console.log(markup,'markup');
+//App = React.createFactory(require(config.srcDir + "/app/" + ((router == "index")?"dashboard":router) + "/app.jsx"));
+
 /////////////////////////////////////////////
 
-var paths = {
-	app: 	require('./paths-app'),
-	vendor: require('./paths-vendor')
-};
 
 
 /********************************************
@@ -40,28 +82,8 @@ gulp.task('build', buildTasks);
 *				 Other Tasks
 **********************************************/
 
-// Local server pointing on build folder
-gulp.task('connect', function() {
-	plugins.connect.server({
-		root: config.buildDir,
-		port: config.port || 3333,
-		livereload: true
-	});
-});
-
-
 // Rerun the task when a file changes
 gulp.task('watch', function() {
-	// When template changes recompile .html pages
-	plugins.watch(paths.app.templates.src, function() {
-	    gulp.start('app-pages');
-	});
-
-	// When context file changes recompile .html pages
-	plugins.watch(config.srcDir + "/**/.context.js", function() {
-	    gulp.start('app-pages');
-	});
-
 	// When jsx script changes recompile scripts
 	plugins.watch(paths.app.jsx.src, function() {
 	    gulp.start('app-jsx');
@@ -94,8 +116,7 @@ gulp.task('deploy', ['build'], function() {
 // // Run this task for development
 gulp.task('develop', [
 	'build',
-	'watch', 
-	'connect'
+	'watch'
 ]);
 
 gulp.task('default', ['develop']);
@@ -114,8 +135,9 @@ function loadTasks() {
 	glob.sync('./tasks/*.js').forEach(function(filePath) {
 		var taskName = path.basename(filePath, '.js');
 
+		if(taskName != "app-pages")
 		taskNames.push(taskName);
-
+		if(taskName != "app-pages")
 		gulp.task(taskName, function() {
 			require(filePath)(gulp, plugins, paths)
 		});
@@ -124,3 +146,7 @@ function loadTasks() {
 
 	return taskNames;
 }
+
+app.use(express.static(path.join(__dirname, 'public')));
+
+var server = app.listen(3333);
