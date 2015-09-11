@@ -9,6 +9,7 @@ var router = express.Router();
 var plugins = require('gulp-load-plugins')();
 var registrar = require('handlebars-registrar');
 var handlebars = require('handlebars');
+var fs = require('fs');
 
 var config = require('./config');
 
@@ -26,14 +27,11 @@ registrar(handlebars, {
 *			Configs And Paths
 *********************************************/
 
-
-
-// Build Jsx
-
 var	React = require('react');
 require('node-jsx').install({extension:'.jsx'});
 
 //router
+
 hbs = exphbs.create({
     extname: '.hbs',
     helpers: handlebars.helpers,
@@ -42,33 +40,46 @@ hbs = exphbs.create({
 app.engine('hbs', hbs.engine);
 app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, "/src/app/"));
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(router);  
 
-hbs.getPartials().then(function (partials) {
-    console.log('tested', partials);
-    // => { 'foo/bar': [Function],
-    // =>    title: [Function] }
-});
-router.all('/:param1', function (req, res, next) {
-	console.log(paths.app.helpers.src, path.parse(req.params.param1).name, "testing!");
-	var page_name = ((path.parse(req.params.param1).name == "index")?"dashboard":path.parse(req.params.param1).name);
-	App = React.createFactory(require(config.srcDir + "/app/" + page_name + "/app.jsx"));
-	markup = React.renderToString(App());
-	console.log(markup,'testtestestset');
-//    res.send('this is a sample!');
-	res.render(page_name + '/' + ((path.parse(req.params.param1).name == "dashboard")?"index":path.parse(req.params.param1).name) + '-page', {
-		markup:markup
+router.all('/*', function (req, res, next) {
+	var markup = '';
+	var page_name = path.parse(String(req.originalUrl)).name;
+	var segments = req.originalUrl.split("/");
+	var file_path = "";
+
+	if(page_name == "index" || page_name == "undefined" || page_name == ""){
+		page_name = "dashboard";
+	}
+	for(var segment = 1; segment < segments.length; segment++){
+		if(segment != (segments.length - 1)){
+			file_path += segments[segment] + "/";
+		}
+		else{
+			file_path += page_name + "/" + page_name;
+		}
+	}
+
+	var jsx_app = config.srcDir + "/app/" + "/" + file_path + ".jsx";
+	fs.exists(jsx_app, function (exists) {
+		if(exists){
+			var App = React.createFactory(require(jsx_app));
+			markup = React.renderToString(App());
+		}
 	});
+	fs.exists(config.srcDir + "/app/" + "/" + file_path + '-page' + '.hbs', function (exists) {
+		if(exists){
+			res.render(file_path + '-page', {
+				markup:markup
+			});
+		}
+		else{
+			res.redirect('/pages/error-404.html');
+		}
+	});
+
 });
-
-//router
-
-router = "index";
-//App = React.createFactory(require(config.srcDir + "/app/" + ((router == "index")?"dashboard":router) + "/app.jsx"));
-
-/////////////////////////////////////////////
-
-
 
 /********************************************
 *   		Load Build Tasks
@@ -147,6 +158,5 @@ function loadTasks() {
 	return taskNames;
 }
 
-app.use(express.static(path.join(__dirname, 'public')));
 
 var server = app.listen(3333);
