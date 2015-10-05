@@ -32,7 +32,9 @@ var buildDir = config.buildDir;
 
 	exports.jsx = {
 		src: [
-			srcDir + "/**/*.jsx",
+			srcDir + "/_main/main.jsx",
+			srcDir + "/**/!(server|app_jsx|router)*.jsx",
+			srcDir + "/**/router.jsx"
 		],
 		dest: buildDir + "/js"
 	};

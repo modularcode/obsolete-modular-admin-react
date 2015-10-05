@@ -57,6 +57,8 @@ var bowerDir 	= config.bowerDir;
 	});
 
 	vendorSrciptFiles.push(srcDir + "/_vendor/**/*.js");
+//	vendorSrciptFiles.push('node_modules/babel-core/browser.js');
+//	vendorSrciptFiles.push('node_modules/es6-module-loader/dist/es6-module-loader-dev.js');
 
 	exports.scripts = {
 		src: vendorSrciptFiles,

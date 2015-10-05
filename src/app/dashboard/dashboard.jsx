@@ -1,43 +1,37 @@
 // Create a custom component by calling React.createClass.
 
-var React = require('react');
+export class Dashboard extends React.Component{
+    constructor() {
+        super();
+        this.state = {elapsed:0, start: Date.now()};
+    }
 
-var TimerExample = React.createClass({
-
-
-    getInitialState: function(){
-
-        // This is called before our render function. The object that is 
-        // returned is assigned to this.state, so we can use it later.
-
-        return { elapsed: 0 };
-    },
-
-    componentDidMount: function(){
+    componentDidMount(){
+    console.log('browser recieved this this');
 
         // componentDidMount is called by react when the component 
         // has been rendered on the page. We can set the interval here:
 
-        this.timer = setInterval(this.tick, 50);
-    },
+        this.timer = setInterval(this.tick.bind(this), 50);
+    }
 
-    componentWillUnmount: function(){
+    componentWillUnmount(){
 
         // This method is called immediately before the component is removed
         // from the page and destroyed. We can clear the interval here:
 
         clearInterval(this.timer);
-    },
+    }
 
-    tick: function(){
+    tick(){
 
         // This function is called every 50 ms. It updates the 
         // elapsed counter. Calling setState causes the component to be re-rendered
 
-        this.setState({elapsed: new Date() - this.props.start});
-    },
+        this.setState({elapsed: new Date() - this.state.start});
+    }
 
-    render: function() {
+    render() {
         
         var elapsed = Math.round(this.state.elapsed / 100);
 
@@ -47,14 +41,11 @@ var TimerExample = React.createClass({
         // Although we return an entire <p> element, react will smartly update
         // only the changed parts, which contain the seconds variable.
 
-        return <p>This example was started <b>{seconds} seconds</b> ago.</p>;
+        return (<div>{this.props.children || 
+            <div><p>Dashboard. This example was started <b>{seconds} seconds</b> ago.</p>
+                <p><Link to="/" activeClassName="link-active">1</Link></p>
+                <p><Link to="/tables.html" activeClassName="link-active">2</Link></p>
+                <p><Link to="/Dashboard" activeClassName="link-active">Dashboard</Link></p>
+            </div>}</div>);
     }
-});
-
-if (typeof window !== "undefined") {
-  window.onload = function() {
-    React.render(<TimerExample start={Date.now()} />, document.getElementById('test'));
-  };
-}
-
-module.exports = TimerExample;
+};
